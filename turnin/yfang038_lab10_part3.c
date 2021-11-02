@@ -71,6 +71,9 @@ void TickThreeLeds(){
 		case SecondLed:
 			ThreeLEDs = ThirdLed;
 			break;
+		case ThirdLed:
+			ThreeLEDs = FirstLed;
+			break;
 	}
 	switch(ThreeLEDs){
 		case StartThree:
@@ -80,7 +83,7 @@ void TickThreeLeds(){
 			threeled = 0x01;
 			break;
 
-		case SecongLed:
+		case SecondLed:
 			threeled = 0x02;
 			break;
 
@@ -192,6 +195,7 @@ int main(void) {
     DDRB = 0xFF;    PORTB = 0x00;
     unsigned long Three_elapsedTime = 0;
     unsigned long Blink_elapsedTime = 0;
+    unsigned long Speaker_elapsedTime = 0;
     const unsigned long timerPeriod = 1;
     TimerSet(1);
     TimerOn();

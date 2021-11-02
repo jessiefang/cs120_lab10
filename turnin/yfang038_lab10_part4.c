@@ -52,10 +52,10 @@ void TimerSet (unsigned long M) {
 enum THREELEDS {StartThree, FirstLed, SecondLed, ThirdLed} ThreeLEDs;
 enum BLINKLEDS {StartBlink, FourthLed, Blink} BlinkLEDs;
 enum COMBINELEDS {StartCombine, Combine} CombineLEDs;
-enum SPEAKER {StartSpeaker, Off, On, Up, Down} Speaker;
+enum SPEAKER {StartSpeaker, Off, On, Up, Down, Wait} Speaker;
 unsigned char threeled = 0x00;
 unsigned char blinkled = 0x00;
-unsigned char speaker = 0x00;
+unsigned char speaker = 0;
 unsigned char tick = 0;
 unsigned char currentnote = 0;
 unsigned char array[8] = {1,2,3,4,5,6,7,8};
@@ -73,6 +73,9 @@ void TickThreeLeds(){
 		case SecondLed:
 			ThreeLEDs = ThirdLed;
 			break;
+		case ThirdLed:
+			ThreeLEDs = FirstLed;
+			break;
 	}
 	switch(ThreeLEDs){
 		case StartThree:
@@ -82,7 +85,7 @@ void TickThreeLeds(){
 			threeled = 0x01;
 			break;
 
-		case SecongLed:
+		case SecondLed:
 			threeled = 0x02;
 			break;
 
@@ -154,7 +157,7 @@ void TickSpeaker(){
 			}else if(tmpA == 0x01){
 				Speaker = Up;
 			}else if(tmpA == 0x02){
-				Speaker == Down;
+				Speaker = Down;
 			}else{
 				Speaker = Off;
 			}
@@ -164,24 +167,23 @@ void TickSpeaker(){
 			if(!tmpA){
 				Speaker = Off;
 			}else{
-				Speaker = Wait;
+				Speaker = On;
 			}
 			break;
 
 		case Up:
-			if(!tmpA){
+			Speaker = Wait;
+			break;
+		case Wait:
+			if(!tmpA) {
 				Speaker = Off;
-			}else{
-				Speaker = Up;
+			}
+			else {
+				Speaker = Wait;
 			}
 			break;
-
 		case Down:
-			if(!tmpA){
-                                Speaker = Off;
-                        }else{
-                                Speaker = Down;
-                        }
+			Speaker = Wait;
                         break;
 
 	}
@@ -206,15 +208,17 @@ void TickSpeaker(){
 			break;
 
 		case Up:
-			if(currentnote <8){
-				currentnote ++;
+			if(currentnote < 8){
+				currentnote++;
 			}
 			break;
 
 		case Down:
-			if(currentnote >0){
-				currentnote --;
+			if(currentnote > 0){
+				currentnote--;
 			}
+			break;
+		case Wait:
 			break;
 	}
 }

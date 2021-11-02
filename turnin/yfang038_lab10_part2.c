@@ -68,6 +68,9 @@ void TickThreeLeds(){
 		case SecondLed:
 			ThreeLEDs = ThirdLed;
 			break;
+		case ThirdLed:
+			ThreeLEDs = FirstLed;
+			break;
 	}
 	switch(ThreeLEDs){
 		case StartThree:
@@ -77,7 +80,7 @@ void TickThreeLeds(){
 			threeled = 0x01;
 			break;
 
-		case SecongLed:
+		case SecondLed:
 			threeled = 0x02;
 			break;
 
