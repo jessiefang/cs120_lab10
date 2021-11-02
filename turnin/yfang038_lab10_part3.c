@@ -1,11 +1,13 @@
 /*	Author: Yunjie Fang
  *  Partner(s) Name: 
  *	Lab Section:
- *	Assignment: Lab #10  Exercise #1
+ *	Assignment: Lab #10  Exercise #3
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
+ *
+ *	Link Demo: 
  */
 #include <avr/io.h>
 #include "io.h"
@@ -50,14 +52,11 @@ void TimerSet (unsigned long M) {
 enum THREELEDS {StartThree, FirstLed, SecondLed, ThirdLed} ThreeLEDs;
 enum BLINKLEDS {StartBlink, FourthLed, Blink} BlinkLEDs;
 enum COMBINELEDS {StartCombine, Combine} CombineLEDs;
-enum SPEAKER {StartSpeaker, Off, On, Up, Down, Release} Speaker;
+enum SPEAKER {StartSpeaker, Off, On} Speaker;
 unsigned char threeled = 0x00;
 unsigned char blinkled = 0x00;
 unsigned char speaker = 0x00;
 unsigned char tick = 0;
-unsigned char currentnote = 0;
-double array[8] = {261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25};
-
 
 void TickThreeLeds(){
 	switch(ThreeLEDs){
@@ -141,19 +140,15 @@ void TickCombineLeds(){
 }
 
 void TickSpeaker(){
-	unsigned char tmpA = ~PINA & 0x07;
+	unsigned char tmpA = ~PINA & 0x04;
 	switch(Speaker){
 		case StartSpeaker:
 			Speaker = Off;
 			break;
 
 		case Off:
-			if(tmpA == 0x04){
+			if(tmpA){
 				Speaker = On;
-			}else if(tmpA == 0x01){
-				Speaker = Up;
-			}else if(tmpA == 0x02){
-				Speaker == Down;
 			}else{
 				Speaker = Off;
 			}
@@ -166,55 +161,27 @@ void TickSpeaker(){
 				Speaker = On;
 			}
 			break;
-
-		case Up:
-			if(!tmpA){
-				Speaker = Off;
-			}else{
-				Speaker = Up;
-			}
-			break;
-
-		case Down:
-			if(!tmpA){
-                                Speaker = Off;
-                        }else{
-                                Speaker = Down;
-                        }
-                        break;
-
 	}
 	switch(Speaker){
 		case StartSpeaker:
 			break;
 
 		case Off:
-			Speaker = 0x00;
+			speaker = 0x00;
 			tick = 0;
 			break;
 
 		case On:
-			if(tick <= array[currentnote]){
-				Speaker = 0x10;
-			}else if(tick <= array[currentnote]*2){
-				Speaker = 0x00;
+			if(tick <= 2){
+				speaker = 0x10;
+			}else if(tick <= 4){
+				speaker = 0x00;
 			}else{
 				tick = 0;
 			}
 			tick ++;
 			break;
 
-		case Up:
-			if(currentnote <8){
-				currentnote ++;
-			}
-			break;
-
-		case Down:
-			if(currentnote >0){
-				currentnote --;
-			}
-			break;
 	}
 }
 
@@ -225,7 +192,6 @@ int main(void) {
     DDRB = 0xFF;    PORTB = 0x00;
     unsigned long Three_elapsedTime = 0;
     unsigned long Blink_elapsedTime = 0;
-    unsigned long Speaker_elapsedTime = 0;
     const unsigned long timerPeriod = 1;
     TimerSet(1);
     TimerOn();

@@ -1,11 +1,13 @@
 /*	Author: Yunjie Fang
  *  Partner(s) Name: 
  *	Lab Section:
- *	Assignment: Lab #10  Exercise #1
+ *	Assignment: Lab #10  Exercise #2
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
+ *
+ *	Link Demo:
  */
 #include <avr/io.h>
 #include "io.h"
@@ -50,14 +52,8 @@ void TimerSet (unsigned long M) {
 enum THREELEDS {StartThree, FirstLed, SecondLed, ThirdLed} ThreeLEDs;
 enum BLINKLEDS {StartBlink, FourthLed, Blink} BlinkLEDs;
 enum COMBINELEDS {StartCombine, Combine} CombineLEDs;
-enum SPEAKER {StartSpeaker, Off, On, Up, Down, Release} Speaker;
 unsigned char threeled = 0x00;
 unsigned char blinkled = 0x00;
-unsigned char speaker = 0x00;
-unsigned char tick = 0;
-unsigned char currentnote = 0;
-double array[8] = {261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25};
-
 
 void TickThreeLeds(){
 	switch(ThreeLEDs){
@@ -135,85 +131,7 @@ void TickCombineLeds(){
 			break;
 
 		case Combine:
-			PORTB = threeled | blinkled | speaker;
-			break;
-	}
-}
-
-void TickSpeaker(){
-	unsigned char tmpA = ~PINA & 0x07;
-	switch(Speaker){
-		case StartSpeaker:
-			Speaker = Off;
-			break;
-
-		case Off:
-			if(tmpA == 0x04){
-				Speaker = On;
-			}else if(tmpA == 0x01){
-				Speaker = Up;
-			}else if(tmpA == 0x02){
-				Speaker == Down;
-			}else{
-				Speaker = Off;
-			}
-			break;
-
-		case On:
-			if(!tmpA){
-				Speaker = Off;
-			}else{
-				Speaker = On;
-			}
-			break;
-
-		case Up:
-			if(!tmpA){
-				Speaker = Off;
-			}else{
-				Speaker = Up;
-			}
-			break;
-
-		case Down:
-			if(!tmpA){
-                                Speaker = Off;
-                        }else{
-                                Speaker = Down;
-                        }
-                        break;
-
-	}
-	switch(Speaker){
-		case StartSpeaker:
-			break;
-
-		case Off:
-			Speaker = 0x00;
-			tick = 0;
-			break;
-
-		case On:
-			if(tick <= array[currentnote]){
-				Speaker = 0x10;
-			}else if(tick <= array[currentnote]*2){
-				Speaker = 0x00;
-			}else{
-				tick = 0;
-			}
-			tick ++;
-			break;
-
-		case Up:
-			if(currentnote <8){
-				currentnote ++;
-			}
-			break;
-
-		case Down:
-			if(currentnote >0){
-				currentnote --;
-			}
+			PORTB = threeled | blinkled;
 			break;
 	}
 }
@@ -221,18 +139,15 @@ void TickSpeaker(){
 
 int main(void) {
     /* Insert DDR and PORT initializations */
-    DDRA = 0x00;    PORTA = 0xFF;
-    DDRB = 0xFF;    PORTB = 0x00;
+    DDRB = 0xFF;    PORTB =0x00;
     unsigned long Three_elapsedTime = 0;
     unsigned long Blink_elapsedTime = 0;
-    unsigned long Speaker_elapsedTime = 0;
-    const unsigned long timerPeriod = 1;
-    TimerSet(1);
+    const unsigned long timerPeriod = 100;
+    TimerSet(100);
     TimerOn();
     ThreeLEDs = StartThree;
     BlinkLEDs = StartBlink;
     CombineLEDs = StartCombine;
-    Speaker = StartSpeaker;
     /* Insert your solution below */
     while (1) {
     if (Three_elapsedTime >= 300) {
@@ -242,18 +157,12 @@ int main(void) {
     if (Blink_elapsedTime >= 1000) {
 	TickBlinkLeds();
 	Blink_elapsedTime = 0;
-    }
-    if (Speaker_elapsedTime >=2){
-	TickSpeaker();
-	Speaker_elapsedTime = 0;
-    }
-    TickSpeaker();
+	}
     TickCombineLeds();
     while(!TimerFlag) {};
     TimerFlag = 0;
     Three_elapsedTime += timerPeriod;
     Blink_elapsedTime += timerPeriod;
-    Speaker_elapsedTime += timerPeriod;
     }
     return 1;
 }

@@ -1,11 +1,13 @@
 /*	Author: Yunjie Fang
  *  Partner(s) Name: 
  *	Lab Section:
- *	Assignment: Lab #10  Exercise #1
+ *	Assignment: Lab #10  Exercise #4
  *	Exercise Description: [optional - include for your own benefit]
  *
  *	I acknowledge all content contained herein, excluding template or example
  *	code, is my own original work.
+ *
+ *	Link demo:
  */
 #include <avr/io.h>
 #include "io.h"
@@ -50,14 +52,13 @@ void TimerSet (unsigned long M) {
 enum THREELEDS {StartThree, FirstLed, SecondLed, ThirdLed} ThreeLEDs;
 enum BLINKLEDS {StartBlink, FourthLed, Blink} BlinkLEDs;
 enum COMBINELEDS {StartCombine, Combine} CombineLEDs;
-enum SPEAKER {StartSpeaker, Off, On, Up, Down, Release} Speaker;
+enum SPEAKER {StartSpeaker, Off, On, Up, Down} Speaker;
 unsigned char threeled = 0x00;
 unsigned char blinkled = 0x00;
 unsigned char speaker = 0x00;
 unsigned char tick = 0;
 unsigned char currentnote = 0;
-double array[8] = {261.63, 293.66, 329.63, 349.23, 392.00, 440.00, 493.88, 523.25};
-
+unsigned char array[8] = {1,2,3,4,5,6,7,8};
 
 void TickThreeLeds(){
 	switch(ThreeLEDs){
@@ -163,7 +164,7 @@ void TickSpeaker(){
 			if(!tmpA){
 				Speaker = Off;
 			}else{
-				Speaker = On;
+				Speaker = Wait;
 			}
 			break;
 
@@ -189,15 +190,15 @@ void TickSpeaker(){
 			break;
 
 		case Off:
-			Speaker = 0x00;
+			speaker = 0x00;
 			tick = 0;
 			break;
 
 		case On:
 			if(tick <= array[currentnote]){
-				Speaker = 0x10;
+				speaker = 0x10;
 			}else if(tick <= array[currentnote]*2){
-				Speaker = 0x00;
+				speaker = 0x00;
 			}else{
 				tick = 0;
 			}
